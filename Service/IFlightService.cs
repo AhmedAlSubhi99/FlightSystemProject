@@ -1,4 +1,6 @@
 ﻿using FlightSystemUsingAPI.DTOs;
+using FlightSystemUsingAPI.MODLES;
+using FlightSystemUsingAPI.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

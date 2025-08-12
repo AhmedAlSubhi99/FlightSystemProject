@@ -22,10 +22,9 @@ namespace FlightSystemUsingAPI.Repositories
         public async Task<List<CrewMember>> GetAvailableCrewAsync(DateTime dep)
         {
             return await _context.CrewMembers
-                .Where(c => !c.FlightCrews.Any(fc =>
-                    fc.Flight.DepartureUtc <= dep &&
-                    fc.Flight.ArrivalUtc >= dep))
+                .Where(c => c.FlightCrews != null && c.FlightCrews.Any(fc => fc.Flight != null && fc.Flight.DepartureUtc <= dep &&fc.Flight.ArrivalUtc >= dep))
                 .ToListAsync();
         }
+
     }
 }

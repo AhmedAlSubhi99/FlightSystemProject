@@ -15,7 +15,7 @@ namespace FlightSystemUsingAPI.Repositories
         public async Task<List<Aircraft>> GetAircraftDueForMaintenanceAsync(DateTime beforeDate)
         {
             return await _context.Aircrafts
-                .Where(a => a.Maintenances.Any(m => m.MaintenanceDate <= beforeDate))
+                .Where(a => a.Maintenances != null && a.Maintenances.Any(m => m.MaintenanceDate <= beforeDate))
                 .Include(a => a.Maintenances)
                 .ToListAsync();
         }

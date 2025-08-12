@@ -16,7 +16,7 @@ namespace FlightSystemUsingAPI.MODLES
         public string? FullName { get; set; }
 
         [Required]
-        public string? Role { get; set; } // Could be Enum
+        public string? Role { get; set; }
 
         public string? LicenseNo { get; set; }
 

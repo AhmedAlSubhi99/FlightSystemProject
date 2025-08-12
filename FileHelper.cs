@@ -266,18 +266,18 @@ namespace FlightSystemUsingAPI.FileHandling
             return list;
         }
 
-        public async Task SaveBaggagesAsync(List<Baggage> baggages)
+        public async Task SaveBaggageAsync(List<Baggage> baggages)
         {
             var lines = new List<string>();
             foreach (var b in baggages)
                 lines.Add($"{b.BaggageId}|{b.TicketId}|{b.WeightKg}|{b.TagNumber}");
-            await SaveLinesAsync(lines, "Baggages.txt");
+            await SaveLinesAsync(lines, "Baggage.txt");
         }
 
-        public async Task<List<Baggage>> LoadBaggagesAsync()
+        public async Task<List<Baggage>> LoadBaggageAsync()
         {
             var list = new List<Baggage>();
-            foreach (var line in await LoadLinesAsync("Baggages.txt"))
+            foreach (var line in await LoadLinesAsync("Baggage.txt"))
             {
                 var p = line.Split('|');
                 list.Add(new Baggage

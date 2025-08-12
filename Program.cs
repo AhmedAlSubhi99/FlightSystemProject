@@ -1,36 +1,31 @@
 ﻿using FlightSystemUsingAPI;
+using FlightSystemUsingAPI.FileHandling;
 using FlightSystemUsingAPI.Data;
-using FlightSystemUsingAPI.Repositories;
 using FlightSystemUsingAPI.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-// 1. Setup DI container
+// Setup services
 var services = new ServiceCollection();
-
-// --- Database connection ---
 services.AddDbContext<FlightContext>(options =>
-    options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=FlightDB;Trusted_Connection=True;TrustServerCertificate=True"));
+    options.UseSqlServer(@"Server=localhost;Database=FlightDB;Trusted_Connection=True;TrustServerCertificate=True"));
+services.AddSingleton<FileSaveLoad>();
+services.AddScoped<DataBackupService>();
 
-// --- Repository registrations ---
-services.AddScoped<IAirportRepository, AirportRepository>();
-services.AddScoped<IAircraftRepository, AircraftRepository>();
-services.AddScoped<ICrewRepository, CrewRepository>();
-services.AddScoped<IRouteRepository, RouteRepository>();
-services.AddScoped<IFlightRepository, FlightRepository>();
-services.AddScoped<IPassengerRepository, PassengerRepository>();
-services.AddScoped<IBookingRepository, BookingRepository>();
-services.AddScoped<ITicketRepository, TicketRepository>();
-services.AddScoped<IBaggageRepository, BaggageRepository>();
-services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
-
-// --- Service layer ---
+// Register repositories
 services.AddScoped<IFlightService, FlightService>();
 
-// 2. Build service provider
 var serviceProvider = services.BuildServiceProvider();
 
-// 3. Seed database & run queries
+// Get backup service
+var backupService = serviceProvider.GetRequiredService<DataBackupService>();
+
+// Export DB to TXT
+await backupService.ExportDatabaseToFilesAsync();
+
+// Import TXT into DB
+// await backupService.ImportFilesToDatabaseAsync();
+// --- Seed database & run queries ---
 using (var scope = serviceProvider.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<FlightContext>();
@@ -38,7 +33,7 @@ using (var scope = serviceProvider.CreateScope())
 
     var flightService = scope.ServiceProvider.GetRequiredService<IFlightService>();
 
-    Console.WriteLine("===== Flight Management Company: LINQ Queries Test =====\n");
+    Console.WriteLine("===== Flight Management Company =====\n");
 
     // 1. Daily Flight Manifest
     var manifest = await flightService.GetDailyFlightManifestAsync(DateTime.UtcNow.Date);

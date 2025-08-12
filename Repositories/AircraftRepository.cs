@@ -1,4 +1,5 @@
 ﻿using FlightSystemUsingAPI.MODLES;
+using FlightSystemUsingAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

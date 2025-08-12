@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using FlightSystemUsingAPI.MODLES;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FlightSystemUsingAPI.Data;
+
 
 namespace FlightSystemUsingAPI.Repositories
 {

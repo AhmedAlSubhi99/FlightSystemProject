@@ -39,5 +39,8 @@ namespace FlightSystemUsingAPI.MODLES
 
         public ICollection<FlightCrew>? FlightCrews { get; set; }
         public ICollection<Ticket>? Tickets { get; set; }
+
+        [Column(TypeName = "date")]
+        public DateTime DepartureDate { get; private set; }
     }
 }

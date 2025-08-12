@@ -1,4 +1,5 @@
 ﻿using FlightSystemUsingAPI.MODLES;
+using FlightSystemUsingAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace FlightSystemUsingAPI.Repositories
         {
             return await _context.Tickets
                 .Include(t => t.Booking)
-                .Where(t => t.Booking.BookingRef == bookingRef)
+                .Where(t => t.Booking != null && t.Booking.BookingRef == bookingRef)
                 .ToListAsync();
         }
 
@@ -22,8 +23,9 @@ namespace FlightSystemUsingAPI.Repositories
         {
             return await _context.Tickets
                 .Include(t => t.Booking)
-                .Where(t => t.Booking.PassengerId == passengerId)
+                .Where(t => t.Booking != null && t.Booking.PassengerId == passengerId)
                 .ToListAsync();
         }
+
     }
 }

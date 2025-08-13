@@ -1,32 +1,37 @@
-﻿using FlightSystemUsingAPI.MODLES;
+﻿using FlightSystemUsingAPI.Data;
+using FlightSystemUsingAPI.MODLES;
 using Microsoft.EntityFrameworkCore;
-using FlightSystemUsingAPI.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public class FlightRepository : GenericRepository<Flight>, IFlightRepository
+    public class FlightRepository : IFlightRepository
     {
-        public FlightRepository(FlightContext context) : base(context) { }
+        private readonly FlightContext _ctx;
+        public FlightRepository(FlightContext ctx) { _ctx = ctx; }
 
-        public async Task<List<Flight>> GetFlightsByDateRangeAsync(DateTime from, DateTime to)
-        {
-            return await _dbSet
-                .Where(f => f.DepartureUtc >= from && f.DepartureUtc <= to)
-                .Include(f => f.Route)
-                .Include(f => f.Aircraft)
-                .ToListAsync();
-        }
+        public IEnumerable<Flight> GetAll() => _ctx.Flights.ToList();
+        public Flight? GetById(int id) => _ctx.Flights.Find(id);
+        public void Add(Flight e) { _ctx.Flights.Add(e); _ctx.SaveChanges(); }
+        public void Update(Flight e) { _ctx.Flights.Update(e); _ctx.SaveChanges(); }
+        public void Delete(int id) { var e = GetById(id); if (e != null) { _ctx.Flights.Remove(e); _ctx.SaveChanges(); } }
 
-        public async Task<List<Flight>> GetFlightsByRouteAsync(int routeId)
-        {
-            return await _dbSet
-                .Where(f => f.RouteId == routeId)
-                .Include(f => f.Route)
-                .ToListAsync();
-        }
+        public IEnumerable<Flight> GetByDateRange(DateTime from, DateTime to) =>
+            _ctx.Flights.Include(f => f.Route).ThenInclude(r => r.OriginAirport)
+                        .Include(f => f.Route).ThenInclude(r => r.DestinationAirport)
+                        .Include(f => f.Aircraft)
+                        .Where(f => f.DepartureUtc >= from && f.DepartureUtc <= to)
+                        .ToList();
+
+        public IEnumerable<Flight> GetByRoute(int routeId) =>
+            _ctx.Flights.Include(f => f.Aircraft).Where(f => f.RouteId == routeId).ToList();
+
+        public Flight? GetWithTicketsAndCrew(int flightId) =>
+            _ctx.Flights
+                .Include(f => f.Tickets).ThenInclude(t => t.BaggageItems)
+                .Include(f => f.FlightCrews).ThenInclude(fc => fc.CrewMember)
+                .FirstOrDefault(f => f.FlightId == flightId);
     }
 }

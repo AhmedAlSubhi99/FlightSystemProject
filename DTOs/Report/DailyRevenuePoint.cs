@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FlightSystemUsingAPI.DTOs.Report
+{
+    public class DailyRevenuePoint
+    {
+        public DateTime Day { get; set; }
+        public decimal Revenue { get; set; }
+        public decimal RunningRevenue { get; set; }
+    }
+}

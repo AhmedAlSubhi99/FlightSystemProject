@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.MODLES
 {
@@ -15,14 +13,12 @@ namespace FlightSystemUsingAPI.MODLES
 
         [Required]
         public int TicketId { get; set; }
+        public Ticket? Ticket { get; set; }
 
-        [Required, Column(TypeName = "decimal(10,2)")]
+        [Precision(6, 2)]
         public decimal WeightKg { get; set; }
 
-        [Required]
-        public string? TagNumber { get; set; }
-
-        [ForeignKey(nameof(TicketId))]
-        public Ticket? Ticket { get; set; }
+        [Required, StringLength(50)]
+        public string TagNumber { get; set; } = string.Empty;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using FlightSystemUsingAPI.Data;
 
 namespace FlightSystemUsingAPI
 {

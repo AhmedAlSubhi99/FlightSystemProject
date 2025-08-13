@@ -1,17 +1,20 @@
 ﻿using FlightSystemUsingAPI.MODLES;
-using FlightSystemUsingAPI.Data;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public interface ICrewRepository : IGenericRepository<CrewMember>
+    public interface ICrewRepository
     {
-        Task<List<CrewMember>> GetCrewByRoleAsync(string role);
-        Task<List<CrewMember>> GetAvailableCrewAsync(DateTime dep);
+        IEnumerable<CrewMember> GetAll();
+        CrewMember? GetById(int id);
+        void Add(CrewMember entity);
+        void Update(CrewMember entity);
+        void Delete(int id);
+
+        // Helpers
+        IEnumerable<CrewMember> GetByRole(CrewRole role);
+        IEnumerable<FlightCrew> GetAssignmentsByFlight(int flightId);
+        IEnumerable<CrewMember> GetAvailable(DateTime from, DateTime to); // simple overlap check
     }
 }

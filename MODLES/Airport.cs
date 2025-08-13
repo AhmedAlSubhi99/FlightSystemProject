@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.MODLES
 {
@@ -14,21 +12,25 @@ namespace FlightSystemUsingAPI.MODLES
         public int AirportId { get; set; }
 
         [Required, StringLength(3)]
-        public string? IATA { get; set; }
+        public string IATA { get; set; } = string.Empty; // unique (DbContext)
 
-        [Required]
-        public string? Name { get; set; }
+        [Required, StringLength(200)]
+        public string Name { get; set; } = string.Empty;
 
-        [Required]
-        public string? City { get; set; }
+        [Required, StringLength(100)]
+        public string City { get; set; } = string.Empty;
 
-        [Required]
-        public string? Country { get; set; }
+        [Required, StringLength(100)]
+        public string Country { get; set; } = string.Empty;
 
-        [Required]
-        public string? TimeZone { get; set; }
+        [Required, StringLength(100)]
+        public string TimeZone { get; set; } = string.Empty;
 
-        public ICollection<Route>? OriginRoutes { get; set; }
-        public ICollection<Route>? DestinationRoutes { get; set; }
+        // Navigation
+        [InverseProperty(nameof(Route.OriginAirport))]
+        public ICollection<Route> OriginRoutes { get; set; } = new List<Route>();
+
+        [InverseProperty(nameof(Route.DestinationAirport))]
+        public ICollection<Route> DestinationRoutes { get; set; } = new List<Route>();
     }
 }

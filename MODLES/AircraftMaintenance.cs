@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.MODLES
 {
@@ -14,17 +12,17 @@ namespace FlightSystemUsingAPI.MODLES
         public int MaintenanceId { get; set; }
 
         [Required]
-        public int AircraftId { get; set; }
-
-        [Required]
         public DateTime MaintenanceDate { get; set; }
 
-        [Required]
-        public string? Type { get; set; }
+        [Required, StringLength(100)]
+        public string Type { get; set; } = string.Empty;
 
+        [StringLength(1000)]
         public string? Notes { get; set; }
 
-        [ForeignKey(nameof(AircraftId))]
+        // FK
+        [Required]
+        public int AircraftId { get; set; }
         public Aircraft? Aircraft { get; set; }
     }
 }

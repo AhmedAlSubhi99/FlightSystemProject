@@ -1,15 +1,20 @@
 ﻿using FlightSystemUsingAPI.MODLES;
-using FlightSystemUsingAPI.Data;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public interface IFlightRepository : IGenericRepository<Flight>
+    public interface IFlightRepository
     {
-        Task<List<Flight>> GetFlightsByDateRangeAsync(DateTime from, DateTime to);
-        Task<List<Flight>> GetFlightsByRouteAsync(int routeId);
+        IEnumerable<Flight> GetAll();
+        Flight? GetById(int id);
+        void Add(Flight entity);
+        void Update(Flight entity);
+        void Delete(int id);
+
+        // Helpers
+        IEnumerable<Flight> GetByDateRange(DateTime from, DateTime to);
+        IEnumerable<Flight> GetByRoute(int routeId);
+        Flight? GetWithTicketsAndCrew(int flightId);
     }
 }

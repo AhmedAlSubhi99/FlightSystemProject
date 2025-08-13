@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.MODLES
 {
@@ -13,21 +11,20 @@ namespace FlightSystemUsingAPI.MODLES
         [Key]
         public int BookingId { get; set; }
 
-        [Required]
-        public string? BookingRef { get; set; }
+        [Required, StringLength(50)]
+        public string BookingRef { get; set; } = string.Empty; // unique (DbContext)
 
         [Required]
         public DateTime BookingDate { get; set; }
 
         [Required]
-        public string? Status { get; set; }
+        public BookingStatus Status { get; set; }
 
+        // FK
         [Required]
         public int PassengerId { get; set; }
-
-        [ForeignKey(nameof(PassengerId))]
         public Passenger? Passenger { get; set; }
 
-        public ICollection<Ticket>? Tickets { get; set; }
+        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
     }
 }

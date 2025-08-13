@@ -1,13 +1,19 @@
-﻿using FlightSystemUsingAPI.MODLES;
-using FlightSystemUsingAPI.Data;
+﻿
+using FlightSystemUsingAPI.MODLES;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public interface ITicketRepository : IGenericRepository<Ticket>
+    public interface ITicketRepository
     {
-        Task<List<Ticket>> GetTicketsByBookingAsync(string bookingRef);
-        Task<List<Ticket>> GetTicketsByPassengerAsync(int passengerId);
+        IEnumerable<Ticket> GetAll();
+        Ticket? GetById(int id);
+        void Add(Ticket entity);
+        void Update(Ticket entity);
+        void Delete(int id);
+
+        // Helpers
+        IEnumerable<Ticket> GetByBookingRef(string bookingRef);
+        IEnumerable<Ticket> GetByPassenger(int passengerId);
     }
 }

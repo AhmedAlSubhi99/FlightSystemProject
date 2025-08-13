@@ -1,13 +1,19 @@
-﻿using FlightSystemUsingAPI.MODLES;
-using FlightSystemUsingAPI.Data;
-using System.Threading.Tasks;
+﻿
+using FlightSystemUsingAPI.MODLES;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public interface IPassengerRepository : IGenericRepository<Passenger>
+    public interface IPassengerRepository
     {
+        IEnumerable<Passenger> GetAll();
+        Passenger? GetById(int id);
+        void Add(Passenger entity);
+        void Update(Passenger entity);
+        void Delete(int id);
+
+        // Helpers
+        Passenger? GetByPassport(string passportNo);
+        Passenger? GetWithBookings(int passengerId);
     }
 }

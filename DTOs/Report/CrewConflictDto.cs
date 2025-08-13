@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlightSystemUsingAPI.DTOs
+namespace FlightSystemUsingAPI.DTOs.Report
 {
     public class CrewConflictDto
     {
         public int CrewId { get; set; }
-        public string? CrewName { get; set; }
+        public string CrewName { get; set; } = string.Empty;
         public int FlightAId { get; set; }
         public int FlightBId { get; set; }
         public DateTime FlightADep { get; set; }

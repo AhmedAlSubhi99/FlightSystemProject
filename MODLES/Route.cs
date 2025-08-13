@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
 namespace FlightSystemUsingAPI.MODLES
 {
     public class Route
@@ -13,21 +10,19 @@ namespace FlightSystemUsingAPI.MODLES
         [Key]
         public int RouteId { get; set; }
 
-        [Required]
+        [Range(0, int.MaxValue)]
         public int DistanceKm { get; set; }
 
-        [Required]
+        // Two FKs to Airport
+        [ForeignKey(nameof(OriginAirport)), Required]
         public int OriginAirportId { get; set; }
 
-        [Required]
+        [ForeignKey(nameof(DestinationAirport)), Required]
         public int DestinationAirportId { get; set; }
 
-        [ForeignKey(nameof(OriginAirportId))]
         public Airport? OriginAirport { get; set; }
-
-        [ForeignKey(nameof(DestinationAirportId))]
         public Airport? DestinationAirport { get; set; }
 
-        public ICollection<Flight>? Flights { get; set; }
+        public ICollection<Flight> Flights { get; set; } = new List<Flight>();
     }
 }

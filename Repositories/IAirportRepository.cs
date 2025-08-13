@@ -1,13 +1,18 @@
 ﻿using FlightSystemUsingAPI.MODLES;
-using FlightSystemUsingAPI.Data;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public interface IAirportRepository : IGenericRepository<Airport>
+    public interface IAirportRepository
     {
+        IEnumerable<Airport> GetAll();
+        Airport? GetById(int id);
+        void Add(Airport entity);
+        void Update(Airport entity);
+        void Delete(int id);
+
+        // Helpers
+        Airport? GetByIata(string iata);
+        Airport? GetWithRoutes(int airportId);
     }
 }

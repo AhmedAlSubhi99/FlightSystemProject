@@ -1,15 +1,19 @@
 ﻿using FlightSystemUsingAPI.MODLES;
-using FlightSystemUsingAPI.Data;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public interface IAircraftRepository : IGenericRepository<Aircraft>
+    public interface IAircraftRepository
     {
-        Task<List<Aircraft>> GetAircraftDueForMaintenanceAsync(DateTime beforeDate);
+        IEnumerable<Aircraft> GetAll();
+        Aircraft? GetById(int id);
+        void Add(Aircraft entity);
+        void Update(Aircraft entity);
+        void Delete(int id);
+
+        // Helpers
+        Aircraft? GetByTailNumber(string tail);
+        IEnumerable<Aircraft> GetDueForMaintenance(DateTime beforeDate);
     }
 }

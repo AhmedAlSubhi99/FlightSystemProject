@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 namespace FlightSystemUsingAPI.MODLES
 {
     public class CrewMember
@@ -12,14 +10,15 @@ namespace FlightSystemUsingAPI.MODLES
         [Key]
         public int CrewId { get; set; }
 
-        [Required]
-        public string? FullName { get; set; }
+        [Required, StringLength(150)]
+        public string FullName { get; set; } = string.Empty;
 
         [Required]
-        public string? Role { get; set; }
+        public CrewRole Role { get; set; }
 
-        public string? LicenseNo { get; set; }
+        [StringLength(100)]
+        public string? LicenseNo { get; set; } // nullable
 
-        public ICollection<FlightCrew>? FlightCrews { get; set; }
+        public ICollection<FlightCrew> FlightCrews { get; set; } = new List<FlightCrew>();
     }
 }

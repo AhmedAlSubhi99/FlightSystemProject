@@ -1,31 +1,30 @@
-﻿using FlightSystemUsingAPI.MODLES;
-using FlightSystemUsingAPI.Data;
+﻿using FlightSystemUsingAPI.Data;
+using FlightSystemUsingAPI.MODLES;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public class TicketRepository : GenericRepository<Ticket>, ITicketRepository
+    public class TicketRepository : ITicketRepository
     {
-        public TicketRepository(FlightContext context) : base(context) { }
+        private readonly FlightContext _ctx;
+        public TicketRepository(FlightContext ctx) { _ctx = ctx; }
 
-        public async Task<List<Ticket>> GetTicketsByBookingAsync(string bookingRef)
-        {
-            return await _context.Tickets
-                .Include(t => t.Booking)
-                .Where(t => t.Booking != null && t.Booking.BookingRef == bookingRef)
-                .ToListAsync();
-        }
+        public IEnumerable<Ticket> GetAll() => _ctx.Tickets.ToList();
+        public Ticket? GetById(int id) => _ctx.Tickets.Find(id);
+        public void Add(Ticket e) { _ctx.Tickets.Add(e); _ctx.SaveChanges(); }
+        public void Update(Ticket e) { _ctx.Tickets.Update(e); _ctx.SaveChanges(); }
+        public void Delete(int id) { var e = GetById(id); if (e != null) { _ctx.Tickets.Remove(e); _ctx.SaveChanges(); } }
 
-        public async Task<List<Ticket>> GetTicketsByPassengerAsync(int passengerId)
-        {
-            return await _context.Tickets
-                .Include(t => t.Booking)
-                .Where(t => t.Booking != null && t.Booking.PassengerId == passengerId)
-                .ToListAsync();
-        }
+        public IEnumerable<Ticket> GetByBookingRef(string bookingRef) =>
+            _ctx.Tickets.Include(t => t.Booking)
+                        .Where(t => t.Booking!.BookingRef == bookingRef)
+                        .ToList();
 
+        public IEnumerable<Ticket> GetByPassenger(int passengerId) =>
+            _ctx.Tickets.Include(t => t.Booking)
+                        .Where(t => t.Booking!.PassengerId == passengerId)
+                        .ToList();
     }
 }

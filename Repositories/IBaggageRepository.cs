@@ -1,13 +1,18 @@
 ﻿using FlightSystemUsingAPI.MODLES;
-using FlightSystemUsingAPI.Data;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.Repositories
 {
-    public interface IBaggageRepository : IGenericRepository<Baggage>
+    public interface IBaggageRepository
     {
+        IEnumerable<Baggage> GetAll();
+        Baggage? GetById(int id);
+        void Add(Baggage entity);
+        void Update(Baggage entity);
+        void Delete(int id);
+
+        // Helpers
+        IEnumerable<Baggage> GetByTicket(int ticketId);
+        IEnumerable<Baggage> GetOverweight(decimal thresholdKg);
     }
 }

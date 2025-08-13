@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.MODLES
 {
@@ -13,8 +11,8 @@ namespace FlightSystemUsingAPI.MODLES
         [Key]
         public int FlightId { get; set; }
 
-        [Required]
-        public string? FlightNumber { get; set; }
+        [Required, StringLength(20)]
+        public string FlightNumber { get; set; } = string.Empty; // + DepartureUtc.Date unique (DbContext)
 
         [Required]
         public DateTime DepartureUtc { get; set; }
@@ -23,24 +21,18 @@ namespace FlightSystemUsingAPI.MODLES
         public DateTime ArrivalUtc { get; set; }
 
         [Required]
-        public string? Status { get; set; }
+        public FlightStatus Status { get; set; }
 
+        // FKs
         [Required]
         public int RouteId { get; set; }
+        public Route? Route { get; set; }
 
         [Required]
         public int AircraftId { get; set; }
-
-        [ForeignKey(nameof(RouteId))]
-        public Route? Route { get; set; }
-
-        [ForeignKey(nameof(AircraftId))]
         public Aircraft? Aircraft { get; set; }
 
-        public ICollection<FlightCrew>? FlightCrews { get; set; }
-        public ICollection<Ticket>? Tickets { get; set; }
-
-        [Column(TypeName = "date")]
-        public DateTime DepartureDate { get; private set; }
+        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+        public ICollection<FlightCrew> FlightCrews { get; set; } = new List<FlightCrew>();
     }
 }

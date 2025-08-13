@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlightSystemUsingAPI.DTOs
+namespace FlightSystemUsingAPI.DTOs.Report
 {
+
     public class FrequentFlierDto
     {
         public int PassengerId { get; set; }
-        public string? FullName { get; set; }
-        public int FlightsTaken { get; set; }
-        public double TotalDistanceKm { get; set; }
+        public string PassengerName { get; set; } = string.Empty;
+        public int FlightsCount { get; set; }
+        public int TotalDistanceKm { get; set; }
     }
 }

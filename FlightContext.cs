@@ -1,195 +1,158 @@
 ﻿using FlightSystemUsingAPI.MODLES;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlightSystemUsingAPI
+namespace FlightSystemUsingAPI.Data
 {
     public class FlightContext : DbContext
     {
         public FlightContext(DbContextOptions<FlightContext> options) : base(options) { }
 
-        // DbSets
-        public DbSet<Airport> Airports { get; set; }
-        public DbSet<Aircraft> Aircrafts { get; set; }
-        public DbSet<CrewMember> CrewMembers { get; set; }
-        public DbSet<Route> Routes { get; set; }
-        public DbSet<Flight> Flights { get; set; }
-        public DbSet<Passenger> Passengers { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
-        public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<FlightCrew> FlightCrews { get; set; }
-        public DbSet<Baggage> Baggages { get; set; }
-        public DbSet<AircraftMaintenance> AircraftMaintenances { get; set; }
-
+        // If you're NOT using DI, keep this so the console app still runs:
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Only configure if not already done (so DI can still pass options)
             if (!optionsBuilder.IsConfigured)
             {
+                // Local SQL Server (change as needed)
                 optionsBuilder.UseSqlServer(
-                    @"Server=localhost;Database=FlightDB;Trusted_Connection=True;TrustServerCertificate=True");
+                    @"Server=(localdb)\MSSQLLocalDB;Database=FlightDB;Trusted_Connection=True;TrustServerCertificate=True");
             }
         }
 
+        // DbSets
+        public DbSet<Airport> Airports => Set<Airport>();
+        public DbSet<Route> Routes => Set<Route>();
+        public DbSet<Aircraft> Aircrafts => Set<Aircraft>();
+        public DbSet<AircraftMaintenance> AircraftMaintenances => Set<AircraftMaintenance>();
+        public DbSet<CrewMember> CrewMembers => Set<CrewMember>();
+        public DbSet<Flight> Flights => Set<Flight>();
+        public DbSet<FlightCrew> FlightCrews => Set<FlightCrew>();
+        public DbSet<Passenger> Passengers => Set<Passenger>();
+        public DbSet<Booking> Bookings => Set<Booking>();
+        public DbSet<Ticket> Tickets => Set<Ticket>();
+        public DbSet<Baggage> Baggage => Set<Baggage>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            // ---------------- Airports
+            modelBuilder.Entity<Airport>()
+                .HasIndex(a => a.IATA)
+                .IsUnique();
 
-            // ===== AIRPORT =====
-            modelBuilder.Entity<Airport>(e =>
-            {
-                e.HasKey(a => a.AirportId);
-                e.HasIndex(a => a.IATA).IsUnique();
-                e.Property(a => a.IATA).IsRequired().HasMaxLength(3);
-                e.Property(a => a.Name).IsRequired().HasMaxLength(120);
-                e.Property(a => a.City).IsRequired().HasMaxLength(80);
-                e.Property(a => a.Country).IsRequired().HasMaxLength(80);
-                e.Property(a => a.TimeZone).IsRequired().HasMaxLength(64);
-            });
+            // ---------------- Routes (two FKs to Airport; restrict delete to avoid cycles)
+            modelBuilder.Entity<Route>()
+                .HasOne(r => r.OriginAirport)
+                .WithMany(a => a.OriginRoutes)
+                .HasForeignKey(r => r.OriginAirportId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // ===== AIRCRAFT =====
-            modelBuilder.Entity<Aircraft>(e =>
-            {
-                e.HasKey(a => a.AircraftId);
-                e.HasIndex(a => a.TailNumber).IsUnique();
-                e.Property(a => a.TailNumber).IsRequired().HasMaxLength(16);
-                e.Property(a => a.Model).IsRequired().HasMaxLength(80);
-                e.Property(a => a.Capacity).IsRequired();
-            });
+            modelBuilder.Entity<Route>()
+                .HasOne(r => r.DestinationAirport)
+                .WithMany(a => a.DestinationRoutes)
+                .HasForeignKey(r => r.DestinationAirportId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // ===== CREWMEMBER =====
-            modelBuilder.Entity<CrewMember>(e =>
-            {
-                e.HasKey(c => c.CrewId);
-                e.Property(c => c.FullName).IsRequired().HasMaxLength(120);
-                e.Property(c => c.Role).IsRequired().HasMaxLength(30);
-                e.Property(c => c.LicenseNo).HasMaxLength(40); // Nullable by model
-            });
+            // ---------------- Aircraft
+            modelBuilder.Entity<Aircraft>()
+                .HasIndex(a => a.TailNumber)
+                .IsUnique();
 
-            // ===== ROUTE =====
-            modelBuilder.Entity<Route>(e =>
-            {
-                e.HasKey(r => r.RouteId);
-                e.Property(r => r.DistanceKm).IsRequired();
+            // ---------------- Passengers
+            modelBuilder.Entity<Passenger>()
+                .HasIndex(p => p.PassportNo)
+                .IsUnique();
 
-                e.HasOne(r => r.OriginAirport)
-                 .WithMany(a => a.OriginRoutes)
-                 .HasForeignKey(r => r.OriginAirportId)
-                 .OnDelete(DeleteBehavior.Restrict);
+            // ---------------- Bookings
+            modelBuilder.Entity<Booking>()
+                .HasIndex(b => b.BookingRef)
+                .IsUnique();
 
-                e.HasOne(r => r.DestinationAirport)
-                 .WithMany(a => a.DestinationRoutes)
-                 .HasForeignKey(r => r.DestinationAirportId)
-                 .OnDelete(DeleteBehavior.Restrict);
-            });
+            // ---------------- Flights
+            // Unique by (FlightNumber, DepartureUtc) – if you want "per day" uniqueness,
+            // this is a good practical approximation without a computed column.
+            modelBuilder.Entity<Flight>()
+                .HasIndex(f => new { f.FlightNumber, f.DepartureUtc })
+                .IsUnique();
 
-            // ===== FLIGHT =====
-            modelBuilder.Entity<Flight>(e =>
-            {
-                e.HasKey(f => f.FlightId);
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Route)
+                .WithMany(r => r.Flights)
+                .HasForeignKey(f => f.RouteId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-                // Computed DATE column from DepartureUtc
-                e.Property<DateTime>("DepartureDate")
-                 .HasColumnType("date")
-                 .HasComputedColumnSql("CAST([DepartureUtc] AS date)", stored: true);
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Aircraft)
+                .WithMany(a => a.Flights)
+                .HasForeignKey(f => f.AircraftId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-                // Unique index on FlightNumber + computed date
-                e.HasIndex(new[] { nameof(Flight.FlightNumber), "DepartureDate" })
-                 .IsUnique();
+            // ---------------- FlightCrew (composite PK)
+            modelBuilder.Entity<FlightCrew>()
+                .HasKey(fc => new { fc.FlightId, fc.CrewId });
 
-                e.Property(f => f.FlightNumber).IsRequired().HasMaxLength(12);
-                e.Property(f => f.DepartureUtc).IsRequired();
-                e.Property(f => f.ArrivalUtc).IsRequired();
-                e.Property(f => f.Status).IsRequired().HasMaxLength(20);
+            modelBuilder.Entity<FlightCrew>()
+                .HasOne(fc => fc.Flight)
+                .WithMany(f => f.FlightCrews)
+                .HasForeignKey(fc => fc.FlightId);
 
-                e.HasOne(f => f.Route)
-                 .WithMany(r => r.Flights)
-                 .HasForeignKey(f => f.RouteId)
-                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<FlightCrew>()
+                .HasOne(fc => fc.CrewMember)
+                .WithMany(c => c.FlightCrews)
+                .HasForeignKey(fc => fc.CrewId);
 
-                e.HasOne(f => f.Aircraft)
-                 .WithMany(a => a.Flights)
-                 .HasForeignKey(f => f.AircraftId)
-                 .OnDelete(DeleteBehavior.Cascade);
-            });
+            modelBuilder.Entity<FlightCrew>()
+                .Property(fc => fc.RoleOnFlight)
+                .HasMaxLength(50)
+                .IsRequired();
 
-            // ===== PASSENGER =====
-            modelBuilder.Entity<Passenger>(e =>
-            {
-                e.HasKey(p => p.PassengerId);
-                e.HasIndex(p => p.PassportNo).IsUnique();
-                e.Property(p => p.FullName).IsRequired().HasMaxLength(120);
-                e.Property(p => p.PassportNo).IsRequired().HasMaxLength(20);
-                e.Property(p => p.Nationality).IsRequired().HasMaxLength(50);
-                e.Property(p => p.DOB).IsRequired();
-            });
+            // ---------------- Tickets
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Flight)
+                .WithMany(f => f.Tickets)
+                .HasForeignKey(t => t.FlightId);
 
-            // ===== BOOKING =====
-            modelBuilder.Entity<Booking>(e =>
-            {
-                e.HasKey(b => b.BookingId);
-                e.HasIndex(b => b.BookingRef).IsUnique();
-                e.Property(b => b.BookingRef).IsRequired().HasMaxLength(16);
-                e.Property(b => b.BookingDate).IsRequired();
-                e.Property(b => b.Status).IsRequired().HasMaxLength(20);
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Booking)
+                .WithMany(b => b.Tickets)
+                .HasForeignKey(t => t.BookingId);
 
-                e.HasOne(b => b.Passenger)
-                 .WithMany(p => p.Bookings)
-                 .HasForeignKey(b => b.PassengerId)
-                 .OnDelete(DeleteBehavior.Cascade);
-            });
+            // Ensure a seat is unique per flight
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => new { t.FlightId, t.SeatNumber })
+                .IsUnique();
 
-            // ===== TICKET =====
-            modelBuilder.Entity<Ticket>(e =>
-            {
-                e.HasKey(t => t.TicketId);
-                e.Property(t => t.SeatNumber).IsRequired().HasMaxLength(6);
-                e.Property(t => t.Fare).IsRequired().HasColumnType("decimal(10,2)");
-                e.Property(t => t.CheckedIn).IsRequired();
+            // Decimal precision (in case attributes are missing)
+            modelBuilder.Entity<Ticket>()
+                .Property(t => t.Fare)
+                .HasPrecision(10, 2);
 
-                e.HasOne(t => t.Booking)
-                 .WithMany(b => b.Tickets)
-                 .HasForeignKey(t => t.BookingId)
-                 .OnDelete(DeleteBehavior.Cascade);
+            // ---------------- Baggage
+            modelBuilder.Entity<Baggage>()
+                .HasOne(b => b.Ticket)
+                .WithMany(t => t.BaggageItems) // or .Baggage if you used that name
+                .HasForeignKey(b => b.TicketId);
 
-                e.HasOne(t => t.Flight)
-                 .WithMany(f => f.Tickets)
-                 .HasForeignKey(t => t.FlightId)
-                 .OnDelete(DeleteBehavior.Cascade);
-            });
+            modelBuilder.Entity<Baggage>()
+                .HasIndex(b => b.TagNumber)
+                .IsUnique();
 
-            // ===== FLIGHTCREW =====
-            modelBuilder.Entity<FlightCrew>(e =>
-            {
-                e.HasKey(fc => new { fc.FlightId, fc.CrewId });
-                e.Property(fc => fc.RoleOnFlight).IsRequired().HasMaxLength(30);
-            });
+            modelBuilder.Entity<Baggage>()
+                .Property(b => b.WeightKg)
+                .HasPrecision(6, 2);
 
-            // ===== BAGGAGE =====
-            modelBuilder.Entity<Baggage>(e =>
-            {
-                e.HasKey(b => b.BaggageId);
-                e.Property(b => b.WeightKg).IsRequired().HasColumnType("decimal(10,2)");
-                e.Property(b => b.TagNumber).IsRequired().HasMaxLength(20);
+            // ---------------- AircraftMaintenance
+            modelBuilder.Entity<AircraftMaintenance>()
+                .HasOne(m => m.Aircraft)
+                .WithMany(a => a.Maintenances)
+                .HasForeignKey(m => m.AircraftId);
 
-                e.HasOne(b => b.Ticket)
-                 .WithMany(t => t.BaggageItems)
-                 .HasForeignKey(b => b.TicketId)
-                 .OnDelete(DeleteBehavior.Cascade);
-            });
+            modelBuilder.Entity<AircraftMaintenance>()
+                .Property(m => m.Type)
+                .HasMaxLength(100)
+                .IsRequired();
 
-            // ===== AIRCRAFT MAINTENANCE =====
-            modelBuilder.Entity<AircraftMaintenance>(e =>
-            {
-                e.HasKey(m => m.MaintenanceId);
-                e.Property(m => m.MaintenanceDate).IsRequired();
-                e.Property(m => m.Type).IsRequired().HasMaxLength(40);
-                e.Property(m => m.Notes).HasMaxLength(200);
-
-                e.HasOne(m => m.Aircraft)
-                 .WithMany(a => a.Maintenances)
-                 .HasForeignKey(m => m.AircraftId)
-                 .OnDelete(DeleteBehavior.Cascade);
-            });
+            modelBuilder.Entity<AircraftMaintenance>()
+                .Property(m => m.Notes)
+                .HasMaxLength(1000);
         }
     }
 }

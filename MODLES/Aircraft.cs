@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightSystemUsingAPI.MODLES
 {
@@ -12,16 +11,16 @@ namespace FlightSystemUsingAPI.MODLES
         [Key]
         public int AircraftId { get; set; }
 
-        [Required]
-        public string? TailNumber { get; set; }
+        [Required, StringLength(50)]
+        public string TailNumber { get; set; } = string.Empty; // unique (DbContext)
 
-        [Required]
-        public string? Model { get; set; }
+        [Required, StringLength(100)]
+        public string Model { get; set; } = string.Empty;
 
-        [Required]
+        [Range(1, 1000)]
         public int Capacity { get; set; }
 
-        public ICollection<Flight>? Flights { get; set; }
-        public ICollection<AircraftMaintenance>? Maintenances { get; set; }
+        public ICollection<Flight> Flights { get; set; } = new List<Flight>();
+        public ICollection<AircraftMaintenance> Maintenances { get; set; } = new List<AircraftMaintenance>();
     }
 }

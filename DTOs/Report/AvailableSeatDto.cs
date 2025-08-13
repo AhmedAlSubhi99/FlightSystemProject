@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlightSystemUsingAPI.DTOs
+namespace FlightSystemUsingAPI.DTOs.Report
 {
     public class AvailableSeatDto
     {
-        public string? SeatNumber { get; set; }
+        public int FlightId { get; set; }
+        public List<string> Seats { get; set; } = new();
     }
 }

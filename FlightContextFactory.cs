@@ -9,9 +9,7 @@ namespace FlightSystemUsingAPI
         public FlightContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<FlightContext>();
-            optionsBuilder.UseSqlServer(
-                @"Server=localhost;Database=FlightDB;Trusted_Connection=True;TrustServerCertificate=True");
-
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=FlightDBase;Trusted_Connection=True;TrustServerCertificate=True");
             return new FlightContext(optionsBuilder.Options);
         }
     }

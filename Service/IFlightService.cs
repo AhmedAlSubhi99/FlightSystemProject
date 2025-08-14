@@ -1,26 +1,29 @@
-﻿using FlightSystemUsingAPI.DTOs.Report;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using FlightSystemUsingAPI.DTOs;
+using FlightSystemUsingAPI.DTOs.Report;
 
 namespace FlightSystemUsingAPI.Service
 {
     public interface IFlightService
     {
-        Task<List<FlightManifestDto>> GetDailyFlightManifestAsync(DateTime date);
-        Task<List<RouteRevenueDto>> GetTopRoutesByRevenueAsync(DateTime from, DateTime to);
-        Task<List<CrewConflictDto>> GetCrewSchedulingConflictsAsync(DateTime from, DateTime to);
-        Task<List<AvailableSeatDto>> GetAvailableSeatsForFlightAsync(int flightId);
-        Task<List<FrequentFlierDto>> GetFrequentFliersAsync(int topN);
-        Task<List<BaggageAlertDto>> GetBaggageOverweightAlertsAsync(decimal threshold);
+        // Core reports
+        List<FlightManifestDto> GetDailyFlightManifest(DateTime dateUtc);
+        List<RouteRevenueDto> GetTopRoutesByRevenue(DateTime fromUtc, DateTime toUtc, int take = 10);
+        List<FlightOccupancyDto> GetSeatOccupancy(DateTime fromUtc, DateTime toUtc, double minRate = 0.8, int topN = 0);
+        AvailableSeatDto GetAvailableSeatsForFlight(int flightId);
 
-        Task<decimal> GetOnTimePerformanceAsync(DateTime from, DateTime to, int minutesThreshold);
-        Task<List<(int FlightId, double OccupancyRate)>> GetSeatOccupancyHeatmapAsync();
-        Task<List<PassengerItineraryDto>> GetPassengersWithConnectionsAsync(int maxHoursBetweenFlights);
-        Task<List<(int AircraftId, string TailNumber)>> GetMaintenanceAlertsAsync(double flightHoursThreshold, int daysSinceLastMaintenance);
-        Task<(List<int> Union, List<int> Intersect, List<int> Except)> GetComplexSetExamplesAsync();
-        Task<(Dictionary<string, int> FlightsDict, string[] TopRoutes, IEnumerable<string> EnumerableExample)> GetConversionOperatorsDemoAsync();
-        Task<List<(DateTime Date, decimal RunningRevenue)>> GetRunningRevenueAsync();
-        Task<int> ForecastBookingsAsync();
+        // Crew & passengers
+        List<CrewConflictDto> GetCrewSchedulingConflicts(DateTime fromUtc, DateTime toUtc);
+        List<FrequentFlierDto> GetFrequentFliers(int topN = 20);
+        List<PassengerItineraryDto> GetPassengersWithConnections(DateTime fromUtc, DateTime toUtc);
+        PassengerItineraryDto? GetPassengerItinerary(int passengerId, DateTime fromUtc, DateTime toUtc);
+
+        // Ops / safety / revenue
+        List<BaggageAlertDto> GetBaggageOverweightAlerts(decimal perPassengerThresholdKg = 30m);
+        List<MaintenanceAlertDto> GetMaintenanceAlerts(DateTime staleBeforeDate, int minFlights = 20);
+        List<DailyRevenuePoint> GetRunningRevenue(DateTime fromUtc, DateTime toUtc);
+        List<BookingForecastDto> ForecastNextWeekBookings();
+        List<OnTimePerformanceDto> GetOnTimePerformance(DateTime fromUtc, DateTime toUtc);
     }
 }

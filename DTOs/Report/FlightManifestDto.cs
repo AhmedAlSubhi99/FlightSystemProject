@@ -17,5 +17,22 @@ namespace FlightSystemUsingAPI.DTOs.Report
         public int PassengerCount { get; set; }
         public decimal TotalBaggageKg { get; set; }
         public List<CrewDto> Crew { get; set; } = new();
+
+        public FlightManifestDto() { }
+        public FlightManifestDto(
+            string flightNumber, DateTime depUtc, DateTime arrUtc,
+            string originIATA, string destIATA, string aircraftTail,
+            int passengerCount, decimal totalBaggageKg, List<CrewDto> crew)
+        {
+            FlightNumber = flightNumber;
+            DepUtc = depUtc;
+            ArrUtc = arrUtc;
+            Origin = originIATA;
+            Destination = destIATA;
+            AircraftTail = aircraftTail;
+            PassengerCount = passengerCount;
+            TotalBaggageKg = totalBaggageKg;
+            Crew = crew ?? new();
+        }
     }
 }

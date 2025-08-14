@@ -1,5 +1,5 @@
-﻿using FlightSystemUsingAPI.MODLES;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using FlightSystemUsingAPI.MODLES;
 
 namespace FlightSystemUsingAPI.Data
 {
@@ -12,9 +12,9 @@ namespace FlightSystemUsingAPI.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                // Local SQL Server (change as needed)
-                optionsBuilder.UseSqlServer(
-                    @"Server=(localdb)\MSSQLLocalDB;Database=FlightDB;Trusted_Connection=True;TrustServerCertificate=True");
+                // Local SQL Server 
+                optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=FlightDBase;Trusted_Connection=True;TrustServerCertificate=True");
+
             }
         }
 
@@ -67,8 +67,7 @@ namespace FlightSystemUsingAPI.Data
                 .IsUnique();
 
             // ---------------- Flights
-            // Unique by (FlightNumber, DepartureUtc) – if you want "per day" uniqueness,
-            // this is a good practical approximation without a computed column.
+
             modelBuilder.Entity<Flight>()
                 .HasIndex(f => new { f.FlightNumber, f.DepartureUtc })
                 .IsUnique();
@@ -128,7 +127,7 @@ namespace FlightSystemUsingAPI.Data
             // ---------------- Baggage
             modelBuilder.Entity<Baggage>()
                 .HasOne(b => b.Ticket)
-                .WithMany(t => t.BaggageItems) // or .Baggage if you used that name
+                .WithMany(t => t.BaggageItems) 
                 .HasForeignKey(b => b.TicketId);
 
             modelBuilder.Entity<Baggage>()
